@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Latihan Interaktif Huruf P B D</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(135deg,#ffe8f1,#e8f5ff);color:#172033}
+.container{max-width:760px;margin:auto;padding:16px}
+.header{background:#fff;border-radius:26px;padding:18px;text-align:center;box-shadow:0 4px 15px #0002}
+h1{margin:0;font-size:clamp(25px,6vw,40px);color:#e83d83}
+.sub{margin:8px 0 14px;font-size:17px}
+.score{font-weight:800;font-size:19px}
+.progress{height:11px;background:#e9edf2;border-radius:20px;margin-top:14px;overflow:hidden}
+.bar{height:100%;width:0;background:#45a4e8;transition:.3s}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin-top:16px}
+.card{border:2px solid var(--border);background:var(--bg);border-radius:22px;padding:10px;text-align:center}
+.num{font-size:20px;font-weight:900}
+.pic{height:125px;background:white;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:72px;margin:5px 0 8px}
+.word{font-size:21px;font-weight:900;margin-bottom:10px}
+.opts{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.btn{min-height:52px;border:0;border-radius:15px;background:#fff;font-size:31px;font-weight:900;cursor:pointer;box-shadow:0 2px 0 #ccd2da}
+.btn:active{transform:translateY(2px)}
+.btn:disabled{cursor:default}
+.p{color:#df2875}.b{color:#1678cf}.d{color:#b88300}
+.correct{background:#baf2c6!important;color:#126b2b!important}
+.wrong{background:#ffd0d0!important;color:#a51f1f!important}
+.feedback{min-height:28px;padding-top:7px;font-size:14px;font-weight:800}
+.final{display:none;text-align:center;background:#fff;border-radius:26px;padding:28px;margin-top:16px;box-shadow:0 4px 15px #0002}
+.trophy{font-size:60px}
+.restart{border:0;border-radius:16px;padding:13px 24px;background:#e83d83;color:#fff;font-size:17px;font-weight:800;cursor:pointer}
+@media(max-width:560px){
+ .grid{grid-template-columns:1fr 1fr;gap:8px}
+ .card{padding:8px}
+ .pic{height:105px;font-size:60px}
+ .word{font-size:19px}
+ .btn{min-height:50px;font-size:29px}
+}
+@media(max-width:360px){.grid{grid-template-columns:1fr}.pic{height:115px}}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+<h1>🌟 Jom Kenal Huruf P, B dan D 🌟</h1>
+<div class="sub">Lihat gambar dan tekan huruf yang betul.</div>
+<div class="score">⭐ Skor: <span id="score">0</span> / 6</div>
+<div class="progress"><div id="bar" class="bar"></div></div>
+</div>
+<div id="grid" class="grid"></div>
+<div id="final" class="final">
+<div class="trophy">🏆</div>
+<h2>Tahniah!</h2>
+<p id="result" style="font-size:23px;font-weight:900"></p>
+<p>Teruskan berlatih mengenal huruf <b>p, b</b> dan <b>d</b>.</p>
+<button class="restart" id="restart">🔄 Cuba Lagi</button>
+</div>
+</div>
+<script>
+const data=[
+['☂️','payung','p','#fff1f7','#f38bb8'],
+['⚽','bola','b','#edf8ff','#75bdf0'],
+['🍩','donat','d','#fffbea','#e9c94a'],
+['🍃','daun','d','#effcf0','#75c77b'],
+['🍌','pisang','p','#fff9df','#e5c64d'],
+['🎒','beg','b','#fff3ed','#f0a35c']
+];
+let score=0,done=0;
+const grid=document.getElementById('grid'),scoreEl=document.getElementById('score'),bar=document.getElementById('bar'),final=document.getElementById('final'),result=document.getElementById('result');
+
+function render(){
+ grid.innerHTML='';
+ data.forEach((q,i)=>{
+  const c=document.createElement('section');
+  c.className='card';
+  c.style.setProperty('--bg',q[3]);
+  c.style.setProperty('--border',q[4]);
+  c.innerHTML='<div class="num">'+(i+1)+'</div>'+
+   '<div class="pic" aria-label="'+q[1]+'">'+q[0]+'</div>'+
+   '<div class="word">'+q[1]+'</div>'+
+   '<div class="opts">'+
+   '<button class="btn p" data-i="'+i+'" data-a="p">p</button>'+
+   '<button class="btn b" data-i="'+i+'" data-a="b">b</button>'+
+   '<button class="btn d" data-i="'+i+'" data-a="d">d</button>'+
+   '</div><div class="feedback" aria-live="polite"></div>';
+  grid.appendChild(c);
+ });
+ grid.querySelectorAll('.btn').forEach(b=>b.addEventListener('click',choose));
+ update();
+}
+function choose(e){
+ const b=e.currentTarget,c=b.closest('.card'),i=Number(b.dataset.i);
+ if(c.dataset.done)return;
+ c.dataset.done='1';
+ const ans=data[i][2],buttons=c.querySelectorAll('.btn'),fb=c.querySelector('.feedback');
+ buttons.forEach(x=>x.disabled=true);
+ if(b.dataset.a===ans){
+  score++;b.classList.add('correct');
+  fb.textContent='✅ Betul! Hebat!';fb.style.color='#177b32';
+ }else{
+  b.classList.add('wrong');
+  buttons.forEach(x=>{if(x.dataset.a===ans)x.classList.add('correct')});
+  fb.textContent='💡 Jawapan: '+ans;fb.style.color='#a51f1f';
+ }
+ done++;update();
+ if(done===data.length)setTimeout(finish,350);
+}
+function update(){
+ scoreEl.textContent=score;
+ bar.style.width=(done/6*100)+'%';
+}
+function finish(){
+ grid.style.display='none';
+ final.style.display='block';
+ result.textContent='Markah kamu: '+score+' / 6';
+}
+document.getElementById('restart').addEventListener('click',()=>{
+ score=0;done=0;grid.style.display='grid';final.style.display='none';render();
+});
+render();
+</script>
+</body>
+</html>
